@@ -1,22 +1,8 @@
 local ____exports = {}
 function ____exports.init(self)
     Manager.init_script()
-    EventBus.on(
-        "ON_INTER_SHOWN",
-        function(state) return label.set_text("/logic#label", "Inter: " .. (state.result and "true" or "false")) end
-    )
-    EventBus.on(
-        "ON_REWARDED_SHOWN",
-        function(state) return label.set_text("/logic#label", "Rewarded: " .. (state.result and "true" or "false")) end
-    )
-    self.is_visible = true
-    EventBus.on(
-        "MY_SHOW_HIDE_GO",
-        function()
-            msg.post("/go", self.is_visible and "disable" or "enable")
-            self.is_visible = not self.is_visible
-        end
-    )
+    GameBoard.init()
+    self.game_mode = AI.get_is_enabled() and "AI" or "player"
 end
 function ____exports.final(self)
     Manager.final_script()

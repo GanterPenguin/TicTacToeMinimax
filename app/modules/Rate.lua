@@ -1,9 +1,11 @@
 local ____exports = {}
 local RateModule
+local ____game_config = require("main.game_config")
+local IS_HUAWEI = ____game_config.IS_HUAWEI
 function RateModule()
     local _is_shown = false
     local function show()
-        if System.platform == "Android" or System.platform == "iPhone OS" or System.platform == "HTML5" and Ads.get_social_platform() == "yandex" or System.platform == "Windows" then
+        if System.platform == "Android" and not IS_HUAWEI or System.platform == "iPhone OS" or System.platform == "HTML5" and Ads.get_social_platform() == "yandex" or System.platform == "Windows" then
             EventBus.trigger("SYS_SHOW_RATE")
         end
     end
