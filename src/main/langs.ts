@@ -1,4 +1,32 @@
 export const lang_data = {
+    "exitText": {
+        "Русский-ru": "Выход",
+        "Английский-en": "Exit"
+    },
+    "playText": {
+        "Русский-ru": "Играть",
+        "Английский-en": "Play"
+    },
+    "playVsAIText": {
+        "Русский-ru": "Играть с ИИ",
+        "Английский-en": "Play vs AI"
+    },
+    "winner_text": {
+        "Русский-ru": "победили!",
+        "Английский-en": "is winner!"
+    },
+    "tie_text": {
+        "Русский-ru": "Ничья!",
+        "Английский-en": "Tie!"
+    },
+    "play_again_text": {
+        "Русский-ru": "Сыграть снова",
+        "Английский-en": "Play again"
+    },
+    "to_menu_text": {
+        "Русский-ru": "В главное меню",
+        "Английский-en": "To main menu"
+    },
     "do_you_like_game": {
         "Русский-ru": "Вам нравится игра?",
         "Английский-en": "Do you like the game?"

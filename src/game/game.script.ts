@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
+import { cell_state, cell_with_index, game_mode, game_state, player_number, player_string } from '../main/game_config';
+
 interface props {
-    is_visible: boolean
+    game_mode: game_mode
 }
 
 export function init(this: props) {
     Manager.init_script();
-    EventBus.on('ON_INTER_SHOWN', (state) => label.set_text('/logic#label', 'Inter: ' + (state.result ? 'true' : 'false')));
-    EventBus.on('ON_REWARDED_SHOWN', (state) => label.set_text('/logic#label', 'Rewarded: ' + (state.result ? 'true' : 'false')));
-    // user event from GUI
-    this.is_visible = true;
-    EventBus.on('MY_SHOW_HIDE_GO', () => { msg.post('/go', this.is_visible ? 'disable' : 'enable'); this.is_visible = !this.is_visible; });
+    GameBoard.init();
+    this.game_mode = AI.get_is_enabled() ? 'AI' : 'player';
 }
 
 

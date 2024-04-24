@@ -38,7 +38,7 @@ export function init(this: props) {
         Camera.set_go_prjection(-1, 1);
 
         Scene.load('menu');
-        Scene.set_bg('#999');
+        Scene.set_bg('#703e53');
     }, true);
 }
 

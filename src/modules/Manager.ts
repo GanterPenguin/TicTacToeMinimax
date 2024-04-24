@@ -16,6 +16,8 @@ import { register_rate } from "./Rate";
 import { register_metrica } from "./Metrica";
 import { register_camera } from "./Camera";
 import { register_html_bridge } from './HtmlBridge';
+import { register_AI } from './AI';
+import { register_game_board } from './GameBoard';
 
 
 
@@ -70,6 +72,8 @@ function ManagerModule() {
         register_camera();
         register_ads();
         register_rate();
+        register_AI();
+        register_game_board();
         Metrica.init(ID_YANDEX_METRICA);
         check_ready(callback_ready);
     }
