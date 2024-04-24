@@ -1,9 +1,102 @@
+local ____lualib = require("lualib_bundle")
+local __TS__ArrayForEach = ____lualib.__TS__ArrayForEach
 local ____exports = {}
+local bind_cell_hover_click, created_cells, game_over
 local druid = require("druid.druid")
 local ____utils = require("utils.utils")
-local set_text = ____utils.set_text
-local function set_state(text)
-    set_text("ads_result", text)
+local hex2rgba = ____utils.hex2rgba
+function bind_cell_hover_click(_this, node, x, y)
+    local btn = _this.druid:new_button(
+        node,
+        function()
+            if game_over then
+                return
+            end
+            if AI.get_is_enabled() and GameBoard.get_current_player() == 2 then
+                return
+            end
+            if created_cells[y + 1][x + 1].disabled then
+                return
+            end
+            GameBoard.update_game_board(
+                x,
+                y,
+                GameBoard.get_current_player()
+            )
+            created_cells[y + 1][x + 1].disabled = true
+        end
+    )
+    btn.style.on_mouse_hover = function(_, node, state)
+        if game_over then
+            return
+        end
+        if node == nil then
+            return
+        end
+        if state then
+            gui.set_color(
+                node,
+                hex2rgba("#e6e64d")
+            )
+        elseif created_cells[y + 1][x + 1].is_winner then
+            gui.set_color(
+                node,
+                hex2rgba("#F00")
+            )
+        else
+            gui.set_color(
+                node,
+                hex2rgba("#fff")
+            )
+        end
+    end
+end
+created_cells = {}
+game_over = false
+local function create_cells(_this)
+    local board_size = 3
+    local board = gui.get_node("board")
+    local size = vmath.vector3(145, 145, 0)
+    local step = 153
+    local position = vmath.vector3(-153, 153, 0)
+    local gap = 8
+    do
+        local y = 0
+        while y < board_size do
+            position.x = -153
+            created_cells[#created_cells + 1] = {}
+            do
+                local x = 0
+                while x < board_size do
+                    local cell = gui.new_box_node(position, size)
+                    local ____created_cells_index_0 = created_cells[y + 1]
+                    ____created_cells_index_0[#____created_cells_index_0 + 1] = {
+                        node = cell,
+                        x = x,
+                        y = y,
+                        disabled = false,
+                        is_winner = false
+                    }
+                    gui.set_parent(cell, board, false)
+                    gui.set_layer(cell, "gameplay")
+                    position.x = position.x + step
+                    bind_cell_hover_click(_this, cell, x, y)
+                    x = x + 1
+                end
+            end
+            position.y = position.y - 153
+            y = y + 1
+        end
+    end
+end
+local function draw_turn(x, y, value)
+    local cell_node = created_cells[y + 1][x + 1].node
+    gui.set_texture(cell_node, "game")
+    gui.play_flipbook(
+        cell_node,
+        GameBoard.get_player_string(value)
+    )
+    created_cells[y + 1][x + 1].disabled = true
 end
 function ____exports.init(self)
     Manager.init_script()
@@ -12,44 +105,43 @@ function ____exports.init(self)
         "btnHome",
         function() return Scene.load("menu") end
     )
-    self.druid:new_button(
-        "btnInter",
-        function()
-            set_state("Interstitial wait...")
-            Ads.show_interstitial(
-                false,
-                function(state) return set_state("Interstitial: " .. tostring(state)) end
+    create_cells(self)
+    EventBus.on(
+        "DRAW_TURN",
+        function(____bindingPattern0)
+            local value
+            local y
+            local x
+            x = ____bindingPattern0.x
+            y = ____bindingPattern0.y
+            value = ____bindingPattern0.value
+            draw_turn(x, y, value)
+        end
+    )
+    EventBus.on(
+        "HIGHLIGHT_CELLS",
+        function(state)
+            __TS__ArrayForEach(
+                state.cells,
+                function(____, ____bindingPattern0)
+                    local y
+                    local x
+                    x = ____bindingPattern0.x
+                    y = ____bindingPattern0.y
+                    gui.set_color(
+                        created_cells[y + 1][x + 1].node,
+                        hex2rgba("#F00")
+                    )
+                    created_cells[y + 1][x + 1].is_winner = true
+                end
             )
         end
     )
-    self.druid:new_button(
-        "btnReward",
+    EventBus.on(
+        "GAME_OVER",
         function()
-            set_state("Rewarded wait...")
-            Ads.show_reward(function(state) return set_state("Rewarded: " .. tostring(state)) end)
+            game_over = true
         end
-    )
-    self.druid:new_button(
-        "btnShowBanner",
-        function()
-            Ads.show_banner()
-            set_state("Banner show")
-        end
-    )
-    self.druid:new_button(
-        "btnHideBanner",
-        function()
-            Ads.hide_banner()
-            set_state("Banner hide")
-        end
-    )
-    self.druid:new_button(
-        "btnSound",
-        function() return Sound.play("vic") end
-    )
-    self.druid:new_button(
-        "btnHideShowGo",
-        function() return EventBus.trigger("MY_SHOW_HIDE_GO") end
     )
 end
 function ____exports.on_input(self, action_id, action)

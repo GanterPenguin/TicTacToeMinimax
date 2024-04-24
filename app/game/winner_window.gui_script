@@ -1,0 +1,66 @@
+local ____exports = {}
+local druid = require("druid.druid")
+function ____exports.init(self)
+    gui.set_render_order(10)
+    Lang.apply()
+    Manager.init_script()
+    self.druid = druid.new(self)
+    self.druid:new_button(
+        "to_menu",
+        function() return Scene.load("menu") end
+    )
+    self.druid:new_button(
+        "play_again",
+        function() return Scene.restart() end
+    )
+    self.druid:new_button(
+        "dev_toggle",
+        function()
+            local winner_window = gui.get_node("winner_window")
+            gui.set_enabled(winner_window, false)
+        end
+    )
+    EventBus.on(
+        "GAME_OVER",
+        function(____bindingPattern0)
+            local tie
+            local winner
+            winner = ____bindingPattern0.winner
+            tie = ____bindingPattern0.tie
+            gui.set_render_order(10)
+            local winner_window = gui.get_node("winner_window")
+            local winner_text_node = gui.get_node("winner_text")
+            local winner_text = Lang.get_text("winner_text")
+            gui.set_text(winner_text_node, ((winner == 1 and "X" or "O") .. " ") .. winner_text)
+            if tie then
+                gui.set_enabled(winner_text_node, false)
+                local tie_text_node = gui.get_node("tie_text")
+                gui.set_enabled(tie_text_node, true)
+            end
+            gui.set_enabled(winner_window, true)
+        end
+    )
+end
+function ____exports.on_input(self, action_id, action)
+    return self.druid:on_input(action_id, action)
+end
+function ____exports.update(self, dt)
+    self.druid:update(dt)
+end
+function ____exports.on_message(self, message_id, message, sender)
+    EventBus.on(
+        "ON_APPLY_CUSTOM_LANG",
+        function() return Lang.apply() end
+    )
+    self.druid:on_message(message_id, message, sender)
+end
+function ____exports.final(self)
+    Manager.final_script()
+    self.druid:final()
+end
+init = ____exports.init
+on_input = ____exports.on_input
+update = ____exports.update
+on_message = ____exports.on_message
+final = ____exports.final
+

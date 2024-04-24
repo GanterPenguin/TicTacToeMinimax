@@ -256,9 +256,12 @@ function ____exports.GoManager()
             "animation"
         )
     end
-    local function set_sprite_hash(_go, id_anim)
+    local function set_sprite_hash(_go, id_anim, name_sprite)
+        if name_sprite == nil then
+            name_sprite = "sprite"
+        end
         sprite.play_flipbook(
-            msg.url(nil, _go, "sprite"),
+            msg.url(nil, _go, name_sprite),
             hash(id_anim)
         )
     end

@@ -1,0 +1,65 @@
+local ____lualib = require("lualib_bundle")
+local __TS__ArrayFrom = ____lualib.__TS__ArrayFrom
+local __TS__ArrayMap = ____lualib.__TS__ArrayMap
+local __TS__ArrayReduce = ____lualib.__TS__ArrayReduce
+local __TS__ArrayFindIndex = ____lualib.__TS__ArrayFindIndex
+local __TS__ArrayForEach = ____lualib.__TS__ArrayForEach
+local ____exports = {}
+function ____exports.init(self)
+    Manager.init_script()
+    local board_size = 3
+    local x_winning_sum = board_size * 1
+    local o_winning_sum = board_size * 2
+    self.board_state = __TS__ArrayFrom(
+        Array(nil, board_size),
+        function() return __TS__ArrayFrom(
+            Array(nil, board_size),
+            function() return {value = 0, is_winner = false} end
+        ) end
+    )
+    EventBus.on(
+        "CHANGE_GAME_STATE",
+        function(state)
+            local winningRowIndex = __TS__ArrayFindIndex(
+                self.board_state,
+                function(____, row)
+                    local row_sum = __TS__ArrayReduce(
+                        __TS__ArrayMap(
+                            row,
+                            function(____, cell) return cell.value end
+                        ),
+                        function(____, acc, current_value) return acc + current_value end
+                    )
+                    return row_sum == x_winning_sum or row_sum == o_winning_sum
+                end
+            )
+            if winningRowIndex ~= -1 then
+                __TS__ArrayForEach(
+                    self.board_state[winningRowIndex + 1],
+                    function(____, _, x)
+                        EventBus.send("HIGHLIGHT_CELL", {x = x, y = winningRowIndex})
+                    end
+                )
+                print("winner found; cells hightlighted")
+            end
+            local function sumOfDiagonals()
+                local diagonalSum = 0
+                local counterDiagonalSum = 0
+                do
+                    local i = 0
+                    while i < #self.board_state do
+                        diagonalSum = diagonalSum + self.board_state[i + 1][i + 1].value
+                        counterDiagonalSum = counterDiagonalSum + self.board_state[i + 1][#self.board_state - i].value
+                        i = i + 1
+                    end
+                end
+            end
+        end
+    )
+end
+function ____exports.final(self)
+    Manager.final_script()
+end
+init = ____exports.init
+final = ____exports.final
+

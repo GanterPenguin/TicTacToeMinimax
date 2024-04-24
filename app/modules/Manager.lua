@@ -30,6 +30,10 @@ local ____Camera = require("modules.Camera")
 local register_camera = ____Camera.register_camera
 local ____HtmlBridge = require("modules.HtmlBridge")
 local register_html_bridge = ____HtmlBridge.register_html_bridge
+local ____AI = require("modules.AI")
+local register_AI = ____AI.register_AI
+local ____GameBoard = require("modules.GameBoard")
+local register_game_board = ____GameBoard.register_game_board
 function ManagerModule()
     local register_modules, check_ready, _is_ready
     function register_modules(callback_ready)
@@ -40,6 +44,8 @@ function ManagerModule()
         register_camera()
         register_ads()
         register_rate()
+        register_AI()
+        register_game_board()
         Metrica.init(ID_YANDEX_METRICA)
         check_ready(callback_ready)
     end
@@ -53,7 +59,7 @@ function ManagerModule()
                     timer.cancel(id_timer)
                     _is_ready = true
                     log("All Managers ready ver: " .. sys.get_config("project.version"))
-                    EventBus.trigger("ON_MANAGER_READY")
+                    msg.post("main:/rate#rate", "MANAGER_READY")
                     if callback_ready then
                         callback_ready()
                     end
