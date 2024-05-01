@@ -30,7 +30,7 @@ function AIModule() {
     const free_cells = GameBoard.find_free_cells(board);
     free_cells.forEach(({ y, x }) => {
       const move = GameBoard.create_move(y, x, AI_side, board);
-      const score = minimax(move, false, turn, 0);
+      const score = minimax(move, false, turn, 0, -1000, 1000);
       if (score > best_score) {
         best_score = score;
         best_move = { y, x };
@@ -55,7 +55,7 @@ function AIModule() {
     }
   }
 
-  function minimax(board: game_state, isMaximazing: boolean, turn: number, depth: number): number {
+  function minimax(board: game_state, isMaximazing: boolean, turn: number, depth: number, alpha: number, beta: number): number {
     const result = GameBoard.check_win_conditions(board);
     const score = evaluate(result, depth);
     if (score !== 0) return score;
@@ -64,23 +64,31 @@ function AIModule() {
 
     if (isMaximazing) {
       let best_score = -1000;
-      free_cells.forEach(({ x, y }) => {
+      for (const { x, y } of free_cells) {
         const new_board = GameBoard.create_move(y, x, AI_side, board);
         best_score = math.max(
           best_score,
-          minimax(new_board, !isMaximazing, turn + 1, depth + 1)
+          minimax(new_board, !isMaximazing, turn + 1, depth + 1, alpha, beta)
         );
-      });
+        alpha = math.max(alpha, best_score);
+        if (best_score >= beta) {
+          break;
+        }
+      }
       return best_score;
     } else {
       let best_score = 1000;
-      free_cells.forEach(({ x, y }) => {
+      for (const { x, y } of free_cells) {
         const new_board = GameBoard.create_move(y, x, Human_side, board);
         best_score = math.min(
           best_score,
-          minimax(new_board, !isMaximazing, turn + 1, depth + 1)
+          minimax(new_board, !isMaximazing, turn + 1, depth + 1, alpha, beta)
         );
-      });
+        beta = math.min(alpha, best_score);
+        if (best_score <= alpha) {
+          break;
+        }
+      }
       return best_score;
     }
   }
