@@ -13,7 +13,7 @@ function AIModule()
             return 0
         end
     end
-    function minimax(board, isMaximazing, turn, depth)
+    function minimax(board, isMaximazing, turn, depth, alpha, beta)
         local result = GameBoard.check_win_conditions(board)
         local score = evaluate(result, depth)
         if score ~= 0 then
@@ -25,37 +25,49 @@ function AIModule()
         local free_cells = GameBoard.find_free_cells(board)
         if isMaximazing then
             local best_score = -1000
-            __TS__ArrayForEach(
-                free_cells,
-                function(____, ____bindingPattern0)
-                    local y
-                    local x
-                    x = ____bindingPattern0.x
-                    y = ____bindingPattern0.y
-                    local new_board = GameBoard.create_move(y, x, AI_side, board)
-                    best_score = math.max(
-                        best_score,
-                        minimax(new_board, not isMaximazing, turn + 1, depth + 1)
+            for ____, ____value in ipairs(free_cells) do
+                local x = ____value.x
+                local y = ____value.y
+                local new_board = GameBoard.create_move(y, x, AI_side, board)
+                best_score = math.max(
+                    best_score,
+                    minimax(
+                        new_board,
+                        not isMaximazing,
+                        turn + 1,
+                        depth + 1,
+                        alpha,
+                        beta
                     )
+                )
+                alpha = math.max(alpha, best_score)
+                if best_score >= beta then
+                    break
                 end
-            )
+            end
             return best_score
         else
             local best_score = 1000
-            __TS__ArrayForEach(
-                free_cells,
-                function(____, ____bindingPattern0)
-                    local y
-                    local x
-                    x = ____bindingPattern0.x
-                    y = ____bindingPattern0.y
-                    local new_board = GameBoard.create_move(y, x, Human_side, board)
-                    best_score = math.min(
-                        best_score,
-                        minimax(new_board, not isMaximazing, turn + 1, depth + 1)
+            for ____, ____value in ipairs(free_cells) do
+                local x = ____value.x
+                local y = ____value.y
+                local new_board = GameBoard.create_move(y, x, Human_side, board)
+                best_score = math.min(
+                    best_score,
+                    minimax(
+                        new_board,
+                        not isMaximazing,
+                        turn + 1,
+                        depth + 1,
+                        alpha,
+                        beta
                     )
+                )
+                beta = math.min(beta, best_score)
+                if best_score <= alpha then
+                    break
                 end
-            )
+            end
             return best_score
         end
     end
@@ -79,7 +91,14 @@ function AIModule()
                 y = ____bindingPattern0.y
                 x = ____bindingPattern0.x
                 local move = GameBoard.create_move(y, x, AI_side, board)
-                local score = minimax(move, false, turn, 0)
+                local score = minimax(
+                    move,
+                    false,
+                    turn,
+                    0,
+                    -1000,
+                    1000
+                )
                 if score > best_score then
                     best_score = score
                     best_move = {y = y, x = x}
