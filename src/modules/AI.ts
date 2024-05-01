@@ -84,7 +84,7 @@ function AIModule() {
           best_score,
           minimax(new_board, !isMaximazing, turn + 1, depth + 1, alpha, beta)
         );
-        beta = math.min(alpha, best_score);
+        beta = math.min(beta, best_score);
         if (best_score <= alpha) {
           break;
         }
